@@ -36,7 +36,6 @@ text_cnn_1d : 93%
 
 
 ## todo
-加载word_embedding 进行训练。
 文本多分类---->再另外开一个仓库。
 
 

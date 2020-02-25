@@ -1,5 +1,5 @@
 {
-    "name": "nlp_template",
+    "name": "text_binary_classification",
     "n_gpu": 1,
 
     "model_arch": {
@@ -23,7 +23,6 @@
             "test": false,
             "batch_first": false,
             "include_lengths": true
-
         }
     },
     "data_loader": {
@@ -33,8 +32,7 @@
             "batch_size": 128,
             "shuffle": true,
             "use_pretrained_word_embedding": true,
-            "word_embedding_name": "sgns.weibo.bigram",
-            "word_embedding_path": "nlp_pytorch_template/data/pretrained_embeddings",
+            "word_embedding_path": "data/pretrained_embeddings/sgns.weibo.bigram",
             "sort_within_batch": true
         }
     },

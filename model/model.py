@@ -11,15 +11,22 @@ from base import BaseModel
 
 
 class RnnModel(BaseModel):
-    def __init__(self, rnn_type, vocab_size, embedding_dim, hidden_dim, output_dim, n_layers,
-                 bidirectional, dropout, pad_idx, batch_first=False):
+    def __init__(self, rnn_type, vocab, embedding_dim, hidden_dim, output_dim, n_layers,
+                 bidirectional, dropout, batch_first=False,use_pretrain_embedding=False):
         super().__init__()
         self.rnn_type = rnn_type.lower()
         self.bidirectional = bidirectional
         self.hidden_dim = hidden_dim
         self.n_layers = n_layers
         self.embedding_dim = embedding_dim
-        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)
+        if use_pretrain_embedding:
+            self.embedding = nn.Embedding.from_pretrained(vocab.vectors)
+        else:
+            self.embedding = nn.Embedding(len(vocab), embedding_dim, padding_idx=vocab.pad_index)
+        # 把unknown 和 pad 向量设置为零
+        self.embedding.weight.data[vocab.unk_index] = torch.zeros(embedding_dim)
+        self.embedding.weight.data[vocab.pad_index] = torch.zeros(embedding_dim)
+
         if rnn_type == 'lstm':
             self.rnn = nn.LSTM(embedding_dim,
                                hidden_dim,
@@ -82,10 +89,16 @@ class RnnModel(BaseModel):
 
 
 class FastText(BaseModel):
-    def __init__(self, vocab_size, embedding_dim, output_dim, pad_idx):
+    def __init__(self, vocab, embedding_dim, output_dim, use_pretrain_embedding=False):
         super().__init__()
         self.embedding_dim = embedding_dim
-        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)
+        if use_pretrain_embedding:
+            self.embedding = nn.Embedding.from_pretrained(vocab.vectors)
+        else:
+            self.embedding = nn.Embedding(len(vocab), embedding_dim, padding_idx=vocab.pad_index)
+        # 把unknown 和 pad 向量设置为零
+        self.embedding.weight.data[vocab.unk_index] = torch.zeros(embedding_dim)
+        self.embedding.weight.data[vocab.pad_index] = torch.zeros(embedding_dim)
 
         self.fc = nn.Linear(embedding_dim, output_dim)
 
@@ -109,11 +122,17 @@ class FastText(BaseModel):
 
 
 class TextCNN(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, n_filters, filter_sizes, output_dim,
-                 dropout, pad_idx):
+    def __init__(self, vocab, embedding_dim, n_filters, filter_sizes, output_dim,
+                 dropout, use_pretrain_embedding=False):
         super().__init__()
         self.embedding_dim = embedding_dim
-        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)
+        if use_pretrain_embedding:
+            self.embedding = nn.Embedding.from_pretrained(vocab.vectors)
+        else:
+            self.embedding = nn.Embedding(len(vocab), embedding_dim, padding_idx=vocab.pad_index)
+        # 把unknown 和 pad 向量设置为零
+        self.embedding.weight.data[vocab.unk_index] = torch.zeros(embedding_dim)
+        self.embedding.weight.data[vocab.pad_index] = torch.zeros(embedding_dim)
 
         self.convs = nn.ModuleList([
             nn.Conv2d(in_channels=1,
@@ -153,11 +172,17 @@ class TextCNN(nn.Module):
 
 
 class TextCNN1d(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, n_filters, filter_sizes, output_dim,
-                 dropout, pad_idx):
+    def __init__(self, vocab, embedding_dim, n_filters, filter_sizes, output_dim,
+                 dropout, use_pretrain_embedding=False):
         super().__init__()
         self.embedding_dim = embedding_dim
-        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)
+        if use_pretrain_embedding:
+            self.embedding = nn.Embedding.from_pretrained(vocab.vectors)
+        else:
+            self.embedding = nn.Embedding(len(vocab), embedding_dim, padding_idx=vocab.pad_index)
+        # 把unknown 和 pad 向量设置为零
+        self.embedding.weight.data[vocab.unk_index] = torch.zeros(embedding_dim)
+        self.embedding.weight.data[vocab.pad_index] = torch.zeros(embedding_dim)
 
         self.convs = nn.ModuleList([
             nn.Conv1d(in_channels=embedding_dim,

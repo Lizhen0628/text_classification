@@ -27,7 +27,7 @@ class WeiboDataset(NLPDataset):
 
 class WeiboDataLoader(NLPDataLoader):
     def __init__(self,dataset,split_ratio=None, batch_size=64,  device=None,train=True, repeat=False, shuffle=None, sort=None,sort_within_batch=False,
-                 use_pretrained_word_embedding=False,word_embedding_name=None, word_embedding_path=None):
+                 use_pretrained_word_embedding=False, word_embedding_path=None):
         """
         微博二分类数据集加载器
         :param dataset:
@@ -46,5 +46,5 @@ class WeiboDataLoader(NLPDataLoader):
 
         super(WeiboDataLoader,self).__init__(dataset,split_ratio=split_ratio, batch_size=batch_size, sort_key=lambda x:len(x.text), device=device,
                  train=train, repeat=repeat, shuffle=shuffle, sort=sort,sort_within_batch=sort_within_batch,
-                use_pretrained_word_embedding=use_pretrained_word_embedding,word_embedding_name=word_embedding_name, word_embedding_path=word_embedding_path
+                use_pretrained_word_embedding=use_pretrained_word_embedding,word_embedding_path=word_embedding_path
                 )

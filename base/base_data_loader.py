@@ -15,7 +15,7 @@ import os
 class NLPDataLoader():
     def __init__(self, dataset,split_ratio=None, batch_size=64, sort_key=None, device=None,
                  batch_size_fn=None, train=True, repeat=False, shuffle=None, sort=None,
-                 sort_within_batch=None, use_pretrained_word_embedding=False,word_embedding_name=None, word_embedding_path=None):
+                 sort_within_batch=None, use_pretrained_word_embedding=False, word_embedding_path=None):
 
         # 构建数据集
         self.dataset = dataset
@@ -31,19 +31,17 @@ class NLPDataLoader():
         self.sort = sort
         self.sort_within_batch = sort_within_batch
         self.use_pretrained_word_embedding = use_pretrained_word_embedding
-        self.word_embedding_name = word_embedding_name
         self.word_embedding_path = word_embedding_path
         self.train_iter,self.valid_iter,self.test_iter = self.get_iterators()
-        self.pad_idx = self.dataset.TEXT.vocab.stoi[self.dataset.TEXT.pad_token]
-        self.unk_idx = self.dataset.TEXT.vocab.stoi[self.dataset.TEXT.unk_token]
         self.vocab = self.dataset.TEXT.vocab
+        self.vocab.pad_index = self.dataset.TEXT.vocab.stoi[self.dataset.TEXT.pad_token]
 
     def get_iterators(self):
         train_iter, valid_iter, test_iter = None, None, None
         if not self.split_ratio:
             # 构建词汇表
             if self.use_pretrained_word_embedding:
-                vectors = Vectors(name=self.word_embedding_name,cache=self.word_embedding_path)  # 使用预训练的词向量
+                vectors = Vectors(name=self.word_embedding_path)  # 使用预训练的词向量
                 self.dataset.TEXT.build_vocab(self.dataset, vectors=vectors,
                                               unk_init=torch.Tensor.normal_)
                 self.dataset.LABEL.build_vocab(self.dataset)
@@ -70,7 +68,7 @@ class NLPDataLoader():
 
             # 构建词汇表
             if self.use_pretrained_word_embedding:
-                vectors = Vectors(name=self.word_embedding_name,cache=self.word_embedding_path)  # 使用预训练的词向量
+                vectors = Vectors(name=self.word_embedding_path)  # 使用预训练的词向量
                 self.dataset.TEXT.build_vocab(train_data, vectors=vectors,
                                               unk_init=torch.Tensor.normal_)
                 self.dataset.LABEL.build_vocab(train_data)
