@@ -1,0 +1,70 @@
+{
+    "name": "nlp_template",
+    "n_gpu": 1,
+
+    "model_arch": {
+        "type": "TextCNN",
+        "args": {
+            "vocab_size":1002,
+            "embedding_dim": 300,
+            "n_filters": 100,
+            "filter_sizes": [3,4,5],
+            "dropout": 0.5,
+            "output_dim": 1
+
+        }
+    },
+    "dataset": {
+        "type": "WeiboDataset",
+        "args": {
+            "data_path": "data/weibo_senti_100k.csv",
+            "stop_words_path": "data/stop_words/哈工大停用词表.txt",
+            "test": false,
+            "batch_first": true,
+            "include_lengths": true
+        }
+    },
+    "data_loader": {
+        "type": "WeiboDataLoader",
+        "args":{
+            "split_ratio": 0.7,
+            "batch_size": 128,
+            "shuffle": true,
+            "use_pretrained_word_embedding": false,
+            "word_embedding_path": "./data/word_embeddings/sgns.sogou.word",
+            "vocab_size": 1000
+
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args":{
+            "lr": 0.001,
+            "weight_decay": 0,
+            "amsgrad": true
+        }
+    },
+    "loss": "binary_crossentropy_loss",
+    "metrics": [
+        "binary_accuracy"
+    ],
+    "lr_scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 50,
+            "gamma": 0.1
+        }
+    },
+    "trainer": {
+        "epochs": 100,
+
+        "saved": "saved/",
+        "save_period": 1,
+        "verbosity": 2,
+
+        "monitor": "min val_loss",
+        "early_stop": 10,
+
+        "tensorboard": true
+    }
+}
