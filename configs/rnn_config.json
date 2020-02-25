@@ -5,12 +5,11 @@
     "model_arch": {
         "type": "RnnModel",
         "args": {
-            "rnn_type": "gru",
-            "input_dim":20002,
+            "rnn_type": "rnn",
             "embedding_dim": 300,
             "hidden_dim": 256,
             "output_dim": 1,
-            "n_layers":1,
+            "n_layers":2,
             "bidirectional": true,
             "dropout": 0.5,
             "batch_first": false
@@ -33,9 +32,9 @@
             "split_ratio": 0.7,
             "batch_size": 128,
             "shuffle": true,
-            "use_pretrained_word_embedding": false,
-            "word_embedding_path": "data/word_embeddings/sgns.sogou.word",
-            "vocab_size": 20000,
+            "use_pretrained_word_embedding": true,
+            "word_embedding_name": "sgns.weibo.bigram",
+            "word_embedding_path": "nlp_pytorch_template/data/pretrained_embeddings",
             "sort_within_batch": true
         }
     },

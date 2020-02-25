@@ -5,10 +5,8 @@
     "model_arch": {
         "type": "FastText",
         "args": {
-            "input_dim":2002,
             "embedding_dim": 300,
             "output_dim": 1
-
         }
     },
     "dataset": {
@@ -28,9 +26,7 @@
             "batch_size": 128,
             "shuffle": true,
             "use_pretrained_word_embedding": false,
-            "word_embedding_path": "data/word_embeddings/sgns.sogou.word",
-            "vocab_size": 2000
-
+            "word_embedding_path": "data/word_embeddings/sgns.sogou.word"
         }
     },
     "optimizer": {

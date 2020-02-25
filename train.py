@@ -28,10 +28,14 @@ def main(config):
     data_loader = config.init_obj('data_loader',weibo_data_process,dataset=dataset,device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
 
     # build model architecture, then print to console
-    # if config.config['']
-    model = config.init_obj('model_arch', module_arch,pad_idx=data_loader.pad_idx)
+    model = config.init_obj('model_arch', module_arch,vocab_size=len(data_loader.vocab),pad_idx=data_loader.pad_idx)
     logger.info(model)
 
+    if data_loader.use_pretrained_word_embedding:
+        model.embedding.weight.data.copy_(data_loader.vocab.vectors)
+    # 把unknown 和 pad 向量设置为零
+    model.embedding.weight.data[data_loader.unk_idx] = torch.zeros(model.embedding_dim)
+    model.embedding.weight.data[data_loader.pad_idx] = torch.zeros(model.embedding_dim)
     # get function handles of loss and metrics
     criterion = getattr(module_loss, config['loss'])
     metrics = [getattr(module_metric, met) for met in config['metrics']]
@@ -52,7 +56,7 @@ def main(config):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='text classification')
-    args.add_argument('-c', '--config', default='configs/text_cnn_1d_config.json', type=str,
+    args.add_argument('-c', '--config', default='configs/rnn_config.json', type=str,
                       help='config file path (default: None)')
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to latest checkpoint (default: None)')

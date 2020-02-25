@@ -12,15 +12,11 @@
 如果使用双向：bidirectional=true,准确率能保证上90%，看来单向传播的时候，是会丢失很多前面的信息
 对于参数 n_layer,层数的增加对于rnn模型来说，在这个数据集上看不到能带来多大的性能提升，反而会产生过拟合现象（bidirectional=true）
 总结：是否是双向bidirectional对结果影响很大
-#### LSTM :96.8%
-参数："input_dim":20002,"embedding_dim": 300,"hidden_dim": 256,"output_dim": 1,"n_layers":1,"bidirectional": true,"dropout": 0.5, "batch_first": false
+#### LSTM :97.2%
 对于文本二分类任务（weibo数据）
-不使用双向：bidirectional=false,准确率也能上96%.但是当n_layers设置大于1的时候，准确率50%，多一层的传播，导致信息丢失。
-使用双向：bidirectional=true，准确率能上97%，能记住上下文信息很重要。但是当n_layers设置大于1的时候，准确率50%，不会带来性能的提升，反而会导致文本信息的丢失。
+不使用双向：bidirectional=false,准确率也能上96%.
+使用双向：bidirectional=true，准确率能上97%，能记住上下文信息很重要。
 总结：n_layer层数的增加导致性能下降
-分析：
-1. 层数多，使模型丢失了语义信息。
-2. 对模型输出的结果设计不当，导致模型没有获取到上下文的语义信息。当n_layers 大于1的时候导致性能下降的原因还有一种可能是我model只取了最后输出的hidden层，如果将所有的output层取出来，求均值得到的可能结果会更好一些。最后输出的tensor选取也是至关重要。
 
 #### GRU:96.9%
 对于文本二分类任务（weibo数据）
