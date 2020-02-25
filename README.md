@@ -5,7 +5,7 @@
 直接在train.py修改配置文件--config的路径即可，也可以通过命令行的方式。
 
 ### 结果对比
-#### RNN :93.2%             
+#### RNN :93.2% 使用预训练可以上96%             
 参数："input_dim":20002,"embedding_dim": 300,"hidden_dim": 256,"output_dim": 1,"n_layers":1,"bidirectional": true,"dropout": 0.5, "batch_first": false
 对于文本二分类（weibo数据）
 如果不使用双向：bidirectional=false，准确率在50%左右，等于瞎猜（即使n_layer大于1 也没用）
