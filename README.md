@@ -1,11 +1,5 @@
----
-title: 文本分类模型及比较
-mathjax: true
-date: 2020-03-29 12:52:20
-categories: 文本分类
-tags: [FastText, 自然语言处理]
-top:
----
+
+如果图片格式出现错误，移步[github.io](https://jeffery0628.github.io/2020/03/29/文本分类模型及比较/#more)
 
 ### 数据集
 
