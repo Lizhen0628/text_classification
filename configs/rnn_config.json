@@ -5,22 +5,21 @@
     "model_arch": {
         "type": "RnnModel",
         "args": {
-            "rnn_type": "rnn",
+            "rnn_type": "lstm",
             "embedding_dim": 300,
             "hidden_dim": 256,
             "output_dim": 1,
             "n_layers":2,
             "bidirectional": true,
-            "dropout": 0.5,
+            "dropout": 0,
             "batch_first": false
         }
     },
     "dataset": {
         "type": "WeiboDataset",
         "args": {
-            "data_path": "data/weibo_senti_100k.csv",
+            "data_path": "data/weibo/weibo_senti_100k.csv",
             "stop_words_path": "",
-            "test": false,
             "batch_first": false,
             "include_lengths": true
         }
@@ -32,7 +31,7 @@
             "batch_size": 128,
             "shuffle": true,
             "use_pretrained_word_embedding": true,
-            "word_embedding_path": "data/pretrained_embeddings/sgns.weibo.bigram",
+            "word_embedding_path": "data/word_embedding/sgns.weibo.word",
             "sort_within_batch": true
         }
     },

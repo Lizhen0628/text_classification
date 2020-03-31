@@ -12,9 +12,8 @@
     "dataset": {
         "type": "WeiboDataset",
         "args": {
-            "data_path": "data/weibo_senti_100k.csv",
+            "data_path": "data/weibo/weibo_senti_100k.csv",
             "stop_words_path": "data/stop_words/哈工大停用词表.txt",
-            "test": false,
             "batch_first": false,
             "include_lengths": true
         }
@@ -26,7 +25,7 @@
             "batch_size": 128,
             "shuffle": true,
             "use_pretrained_word_embedding": true,
-            "word_embedding_path": "data/word_embedding/sgns.weibo.bigram"
+            "word_embedding_path": "data/word_embedding/sgns.weibo.word"
         }
     },
     "optimizer": {

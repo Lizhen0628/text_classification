@@ -9,6 +9,7 @@ import pandas as pd
 from torchtext.data import Dataset, LabelField, Field, Example
 from utils.util import tokenizer,clean_line,read_stop_words
 from tqdm import tqdm
+from pytorch_transformers import BertTokenizer
 import torch
 import os
 
@@ -112,8 +113,8 @@ class NLPDataset(Dataset):
 
         self.LABEL = LabelField(sequential=False, use_vocab=False, dtype=torch.float)
 
-
-        self.TEXT = Field(sequential=True,stop_words=stop_words, tokenize=tokenizer, batch_first=batch_first,tokenizer_language=tokenizer_language,
+        # lambda x: [y for y in x]
+        self.TEXT = Field(sequential=True,stop_words=stop_words, tokenize=lambda x: [y for y in x], batch_first=batch_first,tokenizer_language=tokenizer_language,
                           include_lengths=include_lengths)  # include_lengths=True for LSTM
 
         fields = [("text", self.TEXT), ("label", self.LABEL)]
