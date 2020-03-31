@@ -1,6 +1,9 @@
 
 如果图片格式出现错误，移步[github.io](https://jeffery0628.github.io/2020/03/29/文本分类模型及比较/#more)
 
+### 使用
+所有模型都可直接使用，切换模型：修改trian.py文件下的config为对应模型的config.json文件。
+
 ### 数据集
 
 weibo_senti_100k：共119988条数据，正例：59993,负例59995   
