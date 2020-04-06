@@ -47,7 +47,7 @@ class WeiboDataset(NLPDataset):
         # bert_tokenizer = BertTokenizer.from_pretrained(bert_model_path)
         # pad_index = bert_tokenizer.convert_tokens_to_ids(bert_tokenizer.pad_token)
         # unk_index = bert_tokenizer.convert_tokens_to_ids(bert_tokenizer.unk_token)
-        self.TEXT = Field(use_vocab=True, sequential=True, stop_words=stop_words, tokenize=tokenizer,
+        self.TEXT = Field(use_vocab=True, sequential=True, stop_words=stop_words, tokenize=lambda x: [y for y in x],
                           batch_first=batch_first,
                           tokenizer_language=tokenizer_language,
                           include_lengths=include_lengths)  # include_lengths=True for LSTM
@@ -316,15 +316,15 @@ class BertDatasetIterater(object):
         pad_index = self.bert_tokenizer.pad_token_id
         sent_len = len(content)
         mask = [1]*sent_len + ([0] * (max_sent_len-sent_len))
-        content = content.extend([pad_index] * (max_sent_len-sent_len))
-        return mask
+        content.extend([pad_index] * (max_sent_len-sent_len))
+        return mask,content
 
 
 
     def _to_tensor(self, datas):
         datas = pd.DataFrame(datas,columns=['content','label','sent len'])
         max_sent_len = max(datas['sent len'])
-        datas["mask"] = datas["content"].apply(self._mask_sentence_len,args={max_sent_len})
+        datas["mask"], datas["content"] = zip(*datas["content"].apply(self._mask_sentence_len,args={max_sent_len}))
 
         x = torch.LongTensor(pd.DataFrame(datas['content'].to_list()).values).to(self.device)
         y = torch.FloatTensor(datas['label'].values).to(self.device)
