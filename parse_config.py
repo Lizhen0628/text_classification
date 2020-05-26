@@ -13,7 +13,7 @@ class ConfigParser:
         """
         class to parse configuration json file. Handles hyperparameters for training, initializations of modules, checkpoint saving
         and logging module.
-        :param config: Dict containing configurations, hyperparameters for training. contents of `rnn_config.json` file for example.
+        :param config: Dict containing configurations, hyperparameters for training. contents of `config.json` file for example.
         :param resume: String, path to the checkpoint being loaded.
         :param modification: Dict keychain:value, specifying position values to be replaced from config dict.
         :param run_id: Unique Identifier for training processes. Used to save checkpoints and training log. Timestamp is being used as default
@@ -37,7 +37,7 @@ class ConfigParser:
         self.log_dir.mkdir(parents=True, exist_ok=exist_ok)
 
         # save updated config file to the checkpoint dir
-        write_json(self.config, self.save_dir / 'rnn_config.json')
+        write_json(self.config, self.save_dir / 'config.json')
 
         # configure logging module
         setup_logging(self.log_dir)
@@ -61,7 +61,7 @@ class ConfigParser:
             os.environ["CUDA_VISIBLE_DEVICES"] = args.device
         if args.resume is not None:
             resume = Path(args.resume)
-            cfg_fname = resume.parent / 'rnn_config.json'
+            cfg_fname = resume.parent / 'config.json'
         else:
             msg_no_cfg = "Configuration file need to be specified. Add '-c rnn_config.json', for example."
             assert args.config is not None, msg_no_cfg
@@ -69,6 +69,8 @@ class ConfigParser:
             cfg_fname = Path(args.config)
 
         config = read_json(cfg_fname)
+        config['device_id'] = args.device
+        config['config_file_name'] = args.config
         if args.config and resume:
             # update new config for fine-tuning
             config.update(read_json(args.config))

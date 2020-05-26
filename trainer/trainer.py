@@ -46,17 +46,18 @@ class Trainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
         for batch_idx, batch_data in enumerate(self.train_iter):
-            texts, text_lengths = batch_data.text
             self.optimizer.zero_grad()
-            output = self.model(texts, text_lengths).squeeze(1)
-            loss = self.criterion(output, batch_data.label)
+
+            input_token_ids,bert_masks,seq_lens,class_label = batch_data
+            output = self.model(input_token_ids,bert_masks, seq_lens).squeeze(1)
+            loss = self.criterion[0](output,class_label)
             loss.backward()
             self.optimizer.step()
 
             self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
             self.train_metrics.update('loss', loss.item())
             for met in self.metric_ftns:
-                self.train_metrics.update(met.__name__, met(output, batch_data.label))
+                self.train_metrics.update(met.__name__, met(output, class_label))
 
             if batch_idx % self.log_step == 0:
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
@@ -88,15 +89,15 @@ class Trainer(BaseTrainer):
         self.valid_metrics.reset()
         with torch.no_grad():
             for batch_idx, batch_data in enumerate(self.valid_iter):
-                texts, text_lengths = batch_data.text
+                input_token_ids,bert_masks,seq_lens,class_label = batch_data
 
-                output = self.model(texts, text_lengths).squeeze(1)
-                loss = self.criterion(output, batch_data.label)
+                output = self.model(input_token_ids, bert_masks,seq_lens).squeeze(1)
+                loss = self.criterion[0](output, class_label)
 
                 self.writer.set_step((epoch - 1) * len(self.valid_iter) + batch_idx, 'valid')
                 self.valid_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
-                    self.valid_metrics.update(met.__name__, met(output, batch_data.label))
+                    self.valid_metrics.update(met.__name__, met(output, class_label))
 
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():

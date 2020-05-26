@@ -23,4 +23,4 @@ def categorical_accuracy(preds, y):
     """
     max_preds = preds.argmax(dim=1, keepdim=True)  # get the index of the max probability
     correct = max_preds.squeeze(1).eq(y)
-    return correct.sum() / torch.FloatTensor([y.shape[0]])
+    return (correct.sum() / torch.FloatTensor([y.shape[0]])).item()

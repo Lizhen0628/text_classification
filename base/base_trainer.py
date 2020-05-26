@@ -15,8 +15,9 @@ class BaseTrainer:
         # setup GPU device if available, move model into configured device
         self.device, device_ids = self._prepare_device(config['n_gpu'])
         self.model = model.to(self.device)
-        if len(device_ids) > 1:
-            self.model = torch.nn.DataParallel(model, device_ids=device_ids)
+        # 如果你想使用单卡，需要把下面的条件及其内容给注释掉，如果想多卡并行，则不需要注释下面的条件语句
+        # if len(device_ids) > 1:
+        #     self.model = torch.nn.DataParallel(model, device_ids=device_ids)
 
         self.criterion = criterion
         self.metric_ftns = metric_ftns
@@ -114,8 +115,8 @@ class BaseTrainer:
             self.logger.warning("Warning: The number of GPU\'s configured to use is {}, but only {} are available "
                                 "on this machine.".format(n_gpu_use, n_gpu))
             n_gpu_use = n_gpu
-        device = torch.device('cuda:0' if n_gpu_use > 0 else 'cpu')
-        list_ids = list(range(n_gpu_use))
+        device = torch.device('cuda:{}'.format(self.config.config['device_id']) if n_gpu_use > 0 else 'cpu')
+        list_ids = list(map(lambda x:int(x) ,self.config.config['device_id'].split(',')))
         return device, list_ids
 
     def _save_checkpoint(self, epoch, save_best=False):

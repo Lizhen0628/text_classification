@@ -1,0 +1,54 @@
+{
+  "name": "text_binary_classification",
+  "n_gpu": 1,
+  "model_arch": {
+    "type": "Bert",
+    "args": {
+      "bert_path": "data/pretrain_bert/chinese_roberta_wwm_ext_pytorch",
+      "num_classes": 1,
+      "trained": true
+    }
+  },
+  "dataset": {
+    "type": "WeiboDataSet",
+    "args": {
+      "data_dir": "data/weibo",
+      "data_name": "weibo_senti_100k.csv",
+      "word_embedding_path": "data/word_embedding/sgns.sogou.char",
+      "bert_path": "data/pretrain_bert/chinese_roberta_wwm_ext_pytorch"
+    }
+  },
+  "data_loader": {
+    "type": "DataLoader",
+    "args": {
+      "batch_size": 16,
+      "shuffle": true
+    }
+  },
+  "optimizer": {
+    "type": "AdamW",
+    "args": {
+    }
+  },
+  "lr_scheduler": {
+    "type": "get_linear_schedule_with_warmup",
+    "args": {
+      "num_warmup_steps": 2
+    }
+  },
+  "loss": [
+    "binary_crossentropy_loss"
+  ],
+  "metrics": [
+    "binary_accuracy"
+  ],
+  "trainer": {
+    "epochs": 100,
+    "saved": "saved/bert",
+    "save_period": 5,
+    "verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 3,
+    "tensorboard": true
+  }
+}
