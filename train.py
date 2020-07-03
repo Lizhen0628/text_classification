@@ -86,7 +86,7 @@ def run(config_file):
                       help='config file path (default: None)')
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to latest checkpoint (default: None)')
-    args.add_argument('-d', '--device', default='0,1', type=str,
+    args.add_argument('-d', '--device', default='0', type=str,
                       help='indices of GPUs to enable (default: all)')
 
     # custom cli options to modify configuration from default values given in json file.
@@ -123,13 +123,13 @@ if __name__ == '__main__':
     # ---------------------------------------cnews 十分类-------------------------------------------------
 
     run('configs/multi_classification/fast_text_config.json')
-    run('configs/multi_classification/text_cnn_config.json')
-    run('configs/multi_classification/text_cnn_1d_config.json')
-    run('configs/multi_classification/rnn_config.json')
-    run('configs/multi_classification/lstm_config.json')
-    run('configs/multi_classification/gru_config.json')
-    run('configs/multi_classification/rcnn_config.json')
-    run('configs/multi_classification/rnn_attention_config.json')
-    run('configs/multi_classification/dpcnn_config.json')
-    run('configs/multi_classification/han_config.json')
+    # run('configs/multi_classification/text_cnn_config.json')
+    # run('configs/multi_classification/text_cnn_1d_config.json')
+    # run('configs/multi_classification/rnn_config.json')
+    # run('configs/multi_classification/lstm_config.json')
+    # run('configs/multi_classification/gru_config.json')
+    # run('configs/multi_classification/rcnn_config.json')
+    # run('configs/multi_classification/rnn_attention_config.json')
+    # run('configs/multi_classification/dpcnn_config.json')
+    # run('configs/multi_classification/han_config.json')
     # run('configs/multi_classification/xlnet_config.json')

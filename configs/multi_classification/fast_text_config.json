@@ -22,7 +22,7 @@
   "data_loader": {
     "type": "DataLoader",
     "args": {
-      "batch_size": 128,
+      "batch_size": 512,
       "shuffle": true
     }
   },

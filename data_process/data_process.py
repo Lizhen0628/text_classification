@@ -19,7 +19,13 @@ from transformers import BertTokenizer, XLNetTokenizer
 
 
 class CnewsExample():
+
     def __init__(self, text, label):
+        """
+        如果是预测，数据无label，可以设置label=None，根据需求对collate_fn_4_inference部分进行适当修改
+        :param text:
+        :param label:
+        """
         self.label_id_map = {'体育': 0, '娱乐': 1, '家居': 2, '房产': 3, '教育': 4, '时尚': 5, '时政': 6, '游戏': 7, '科技': 8, '财经': 9}
         self.text = text
         self.label = label
@@ -166,9 +172,9 @@ class CnewsDataset(NLPDataSet):
                             text = text[:self.max_sent_len]
                         cnews_example = CnewsExample(text, label)
                         # 使用字向量
-                        # cnews_example.tokens = list(cnews_example.text)
+                        cnews_example.tokens = list(cnews_example.text)
                         # 使用词向量
-                        cnews_example.tokens = [*jieba.lcut(cnews_example.text)]
+                        # cnews_example.tokens = [*jieba.lcut(cnews_example.text)]
                         for token in cnews_example.tokens:
                             if token in pretrained_wordembedding:
                                 if token not in stoi:
@@ -208,9 +214,9 @@ class CnewsDataset(NLPDataSet):
                             text = text[:self.max_sent_len]
                         cnews_example = CnewsExample(text, label)
                         # 使用字向量
-                        # cnews_example.tokens = list(cnews_example.text)
+                        cnews_example.tokens = list(cnews_example.text)
                         # 使用词向量
-                        cnews_example.tokens = [*jieba.lcut(cnews_example.text)]
+                        # cnews_example.tokens = [*jieba.lcut(cnews_example.text)]
                         for token in cnews_example.tokens:
                             if token in word_embedding.stoi:
                                 cnews_example.tokens_ids.append(word_embedding.stoi[token])
@@ -284,6 +290,44 @@ class CnewsDataset(NLPDataSet):
         class_labels = torch.LongTensor(np.array(class_labels)).to(self.device)
 
         return input_token_ids, None, seq_lens, class_labels
+    def collate_fn_4_inference(self, datas):
+        """
+        训练阶段所使用的collate function
+
+        class CnewsExample():
+            def __init__(self, text, label):
+                self.label_id_map = {'体育': 0, '娱乐': 1, '家居': 2, '房产': 3, '教育': 4, '时尚': 5, '时政': 6, '游戏': 7, '科技': 8, '财经': 9}
+                self.text = text
+                self.label = label
+                self.label_id = self.label_id_map[label]
+
+                self.tokens = []
+                self.tokens_ids = []
+
+        :return:
+        """
+        # 记录batch中每个句子长度
+        seq_lens = []
+        input_token_ids = []
+        # 获取该batch 中句子的最大长度
+        max_seq_len = len(max(datas, key=lambda x: len(x.tokens_ids)).tokens_ids)
+        texts = []
+        class_labels = []
+
+
+        # padding 句子到相同长度
+        for data in datas:
+            texts.append(data.text)
+            class_labels.append(data.label_id)
+            cur_seq_len = len(data.tokens_ids)
+            seq_lens.append(len(data.tokens_ids))
+            input_token_ids.append(data.tokens_ids + [self.word_embedding.stoi['PAD']] * (max_seq_len - cur_seq_len))
+
+        input_token_ids = torch.LongTensor(np.array(input_token_ids)).to(self.device)
+        seq_lens = torch.LongTensor(np.array(seq_lens)).to(self.device)
+        class_labels = torch.LongTensor(np.array(class_labels)).to(self.device)
+
+        return input_token_ids, None, seq_lens,class_labels,texts
 
 
 class WeiboExample():
