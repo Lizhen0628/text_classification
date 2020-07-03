@@ -59,7 +59,7 @@ def main(config):
     id_map_label = {0:'体育', 1:'娱乐', 2:'家居', 3:'房产', 4:'教育', 5:'时尚', 6:'时政', 7:'游戏', 8:'科技', 9:'财经'}
     # inference
     with torch.no_grad():
-        for i, batch_data in enumerate(tqdm(test_dataloader)):
+        for i, batch_data in enumerate(test_dataloader):
             input_token_ids, _, seq_lens,class_labels,texts = batch_data
 
             output = model(input_token_ids, _, seq_lens).squeeze(1)
