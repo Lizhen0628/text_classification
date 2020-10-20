@@ -2,6 +2,20 @@
 
 ![](text_classification/QQ截图20180116105758_副本.png)
 
+# V2
+
+1. V2 版本与V1版本不兼容.v2版本从配置文件可读性，代码复用解耦等方面进行了优化。
+2. 添加了多标签文本分类。
+
+## features
+- [x] 评价指标tensorboard可视化
+- [x] 网络结构tensorboard 可视化
+- [x] 弃用json配置文件的方式（不可添加注释），改用可读性更好的yml配置文件格式。
+- [x] 兼容[huggingface/transformers](https://github.com/huggingface/transformers)
+- [x] 文本二分类，多分类，多标签分类
+
+
+
 # 项目介绍
 
 1. 项目使用深度学习模型进行文本分类，所使用的模型主要包括：FastText，TextCNN，DPCNN，RNN系列(RNN，LSTM，GRU)，RNN-Attention，TextRCNN，HAN，Bert，BertCNN，BertRNN，BertRCNN,XLNet。
