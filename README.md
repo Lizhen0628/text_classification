@@ -13,6 +13,184 @@
 - [x] 弃用json配置文件的方式（不可添加注释），改用可读性更好的yml配置文件格式。
 - [x] 兼容[huggingface/transformers](https://github.com/huggingface/transformers)
 - [x] 文本二分类，多分类，多标签分类
+- [x] 多GPU并行
+
+## 目录结构
+
+```
+.
+├── base
+│   ├── base_dataset.py
+│   ├── base_model.py
+│   ├── base_trainer.py
+│   ├── __init__.py
+│   └── __pycache__
+│       ├── base_dataset.cpython-36.pyc
+│       ├── base_model.cpython-36.pyc
+│       ├── base_trainer.cpython-36.pyc
+│       └── __init__.cpython-36.pyc
+├── configs
+│   ├── binary_classification
+│   │   ├── active_learning_word_embedding_text_cnn.yml
+│   │   ├── bert_rcnn_config.json
+│   │   ├── bert_rnn_config.json
+│   │   ├── transformers_cnn.yml
+│   │   ├── transformers_pure.yml
+│   │   ├── transformers_rcnn.yml
+│   │   ├── transformers_rnn.yml
+│   │   ├── word_embedding_dpcnn.yml
+│   │   ├── word_embedding_fast_text.yml
+│   │   ├── word_embedding_rcnn.yml
+│   │   ├── word_embedding_rnn_attention.yml
+│   │   ├── word_embedding_rnn.yml
+│   │   ├── word_embedding_text_cnn_1d.yml
+│   │   └── word_embedding_text_cnn.yml
+│   ├── multi_classification
+│   │   ├── dpcnn_config.json
+│   │   ├── fast_text_config.json
+│   │   ├── gru_config.json
+│   │   ├── han_config.json
+│   │   ├── lstm_config.json
+│   │   ├── rcnn_config.json
+│   │   ├── rnn_attention_config.json
+│   │   ├── rnn_config.json
+│   │   ├── text_cnn_1d_config.json
+│   │   ├── text_cnn_config.json
+│   │   ├── transformers_cnn.yml
+│   │   ├── transformers_pure.yml
+│   │   ├── transformers_rcnn.yml
+│   │   ├── transformers_rnn.yml
+│   │   ├── word_embedding_dpcnn.yml
+│   │   ├── word_embedding_fast_text.yml
+│   │   ├── word_embedding_rcnn.yml
+│   │   ├── word_embedding_rnn_attention.yml
+│   │   ├── word_embedding_rnn.yml
+│   │   ├── word_embedding_text_cnn_1d.yml
+│   │   ├── word_embedding_text_cnn.yml
+│   │   └── xlnet_config.json
+│   ├── multi_label_classification
+│   │   └── roberta_config.yml
+│   └── multilabel_classification
+│       ├── transformers_cnn.yml
+│       ├── transformers_pure.yml
+│       ├── transformers_rcnn.yml
+│       ├── transformers_rnn.yml
+│       ├── word_embedding_dpcnn.yml
+│       ├── word_embedding_fast_text.yml
+│       ├── word_embedding_rcnn.yml
+│       ├── word_embedding_rnn_attention.yml
+│       ├── word_embedding_rnn.yml
+│       ├── word_embedding_text_cnn_1d.yml
+│       └── word_embedding_text_cnn.yml
+├── data
+│   ├── cnews
+│   │   ├── cnews_all.jsonl
+│   │   ├── cnews_preprocess.py
+│   │   ├── cnews.vocab.txt
+│   │   ├── raw_data
+│   │   │   ├── cnews.test.txt
+│   │   │   ├── cnews.train.txt
+│   │   │   └── cnews.val.txt
+│   │   └── train_valid_test
+│   │       ├── cnews_all.jsonl
+│   │       ├── cnews_test.jsonl
+│   │       ├── cnews_train.jsonl
+│   │       └── cnews_valid.jsonl
+│   ├── medical_question
+│   │   ├── medical_preprocess.py
+│   │   ├── medical_question.jsonl
+│   │   ├── medical_train.jsonl
+│   │   ├── readme.md
+│   │   ├── train.csv
+│   │   └── train_valid
+│   │       ├── medical_train.jsonl
+│   │       └── medical_valid.jsonl
+│   ├── weibo
+│   │   ├── passive_learning_data
+│   │   │   ├── weibo_senti_test.jsonl
+│   │   │   ├── weibo_senti_train_.jsonl
+│   │   │   ├── weibo_senti_train.jsonl
+│   │   │   └── weibo_senti_valid.jsonl
+│   │   ├── weibo_preprocess.py
+│   │   ├── weibo_senti_100k.csv
+│   │   └── weibo_senti_100k.jsonl
+│   └── word_embedding
+│       └── sgns.sogou.word
+├── data_process
+│   ├── cnews_data_process.py
+│   ├── __init__.py
+│   ├── medical_question_data_process.py
+│   └── weibo_data_process.py
+├── inference.py
+├── logger
+│   ├── __init__.py
+│   ├── logger_config.yml
+│   ├── logger.py
+├── model
+│   ├── __init__.py
+│   ├── loss.py
+│   ├── metric.py
+│   ├── model.py
+│   ├── models.py
+├── README.md
+├── requirements.txt
+├── saved
+│   ├── diff
+│   ├── log
+│   └── models
+├── text_classification
+├── trainer
+│   ├── cnews_trainer.py
+│   ├── __init__.py
+│   ├── medical_question_trainer.py
+│   └── weibo_trainer.py
+├── train.py
+└── utils
+    ├── data_utils.py
+    ├── __init__.py
+    ├── model_utils.py
+    ├── parse_config.py
+    ├── project_utils.py
+    ├── query_strategies.py
+    ├── trainer_utils.py
+    ├── util.py
+    └── visualization.py
+
+```
+
+## 运行 或 使用自己数据训练
+
+1. 配置环境：
+
+	```
+	pip install -r requirements.txt
+	```
+
+2. 确定自己数据的任务类型：
+
+	1. 二分类：参考weibo数据集
+	2. 多分类：参考cnews数据集
+	3. 多标签分类：参考医疗健康问答数据集
+
+3. 把参考数据集文件下的数据预处理文件，把数据处理成jsonl格式的文件、生成wordembedding，例如：
+
+	```
+	{"id": 118068, "text": "不知道到底怎么谁是，但是只是希望能够喝到健康的饮用水...[衰]", "labels": [0]}
+	{"id": 47166, "text": "回复@花而:去了做了挨个尝了，拿到证书毕业啦！ //@花而:很关心，他们早上去市场了吗？[哈哈]", "labels": [1]}
+	```
+
+4. 参考data_process目录下对应任务类型，构建dataset、dataloader。
+
+5. 参考config目录下对应的任务类型，编写配置文件。
+
+6. 运行train.py
+
+	```
+	python train.py
+	```
+
+	
+
 
 
 
