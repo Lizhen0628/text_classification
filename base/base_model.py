@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+# @Time    : 2020/8/20 5:07 下午
+# @Author  : jeffery
+# @FileName: base_model.py
+# @website : http://www.jeffery.ink/
+# @github  : https://github.com/jeffery0628
+# @Description:
 import torch.nn as nn
 import numpy as np
 from abc import abstractmethod

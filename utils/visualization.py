@@ -1,5 +1,13 @@
+# -*- coding: utf-8 -*-
+# @Time    : 2020/8/27 3:27 下午
+# @Author  : jeffery
+# @FileName: visualization.py
+# @website : http://www.jeffery.ink/
+# @github  : https://github.com/jeffery0628
+# @Description:
 import importlib
 from datetime import datetime
+from torch.utils.tensorboard import SummaryWriter
 
 
 class TensorboardWriter():
@@ -23,8 +31,8 @@ class TensorboardWriter():
 
             if not succeeded:
                 message = "Warning: visualization (Tensorboard) is configured to use, but currently not installed on " \
-                    "this machine. Please install TensorboardX with 'pip install tensorboardx', upgrade PyTorch to " \
-                    "version >= 1.1 to use 'torch.utils.tensorboard' or turn off the option in the 'rnn_config.json' file."
+                          "this machine. Please install TensorboardX with 'pip install tensorboardx', upgrade PyTorch to " \
+                          "version >= 1.1 to use 'torch.utils.tensorboard' or turn off the option in the 'config.json' file."
                 logger.warning(message)
 
         self.step = 0
@@ -63,6 +71,7 @@ class TensorboardWriter():
                     if name not in self.tag_mode_exceptions:
                         tag = '{}/{}'.format(tag, self.mode)
                     add_data(tag, data, self.step, *args, **kwargs)
+
             return wrapper
         else:
             # default action for returning methods defined in this class, set_step() for instance.

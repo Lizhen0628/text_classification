@@ -1,0 +1,101 @@
+# global parameters
+global_parameters:
+  # model related
+  - &model_arch_type 'TextCNN'
+  - &train true #[true,false] # 如果不使用transformers model，该参数表示是否训练词向量，如果使用transformers model，该参数表示是否对transformers model 进行微调
+  - &dropout 0.5
+  - &class_num 2
+  # data related
+  - &dataset_type 'WeiboEmbeddingDataset'
+  - &data_dir 'data/weibo/passive_learning_data' # 定义锚
+  - &cache_dir 'data/weibo/.cache'
+  - &overwrite_cache true
+  - &word_embedding 'data/word_embedding/.cache/weibo_word_embedding.pkl' # [weibo_word_embedding.pkl, weibo_char_embedding.pkl]
+  - &num_workers 3
+  - &batch_size 2048
+
+
+experiment_name: *model_arch_type
+num_gpu: 3                         # GPU数量
+device_id: '0,1,2'
+visual_device: '0,1,2'
+main_device_id: '0'
+resume_path: null                         # path to latest checkpoint
+
+# 模型
+model_arch:
+  type: *model_arch_type
+  args:
+    word_embedding: *word_embedding
+    train: *train
+    dropout: *dropout
+    # textcnn parameters
+    n_filters: 100
+    filter_sizes:
+      - 3
+      - 5
+      - 7
+    class_num: *class_num
+
+train_set:
+  type: *dataset_type
+  args:
+    data_dir: *data_dir
+    file_name: 'weibo_senti_train.jsonl'
+    cache_dir: *cache_dir
+    overwrite_cache: *overwrite_cache
+    word_embedding: *word_embedding
+    shuffle: true
+    batch_size: *batch_size   # data loader batch size
+    num_workers: *num_workers # data loader num of worker
+
+valid_set:
+  type: *dataset_type
+  args:
+    data_dir: *data_dir
+    file_name: 'weibo_senti_valid.jsonl'
+    cache_dir: *cache_dir
+    overwrite_cache: *overwrite_cache
+    word_embedding: *word_embedding
+    shuffle: true
+    batch_size: *batch_size   # data loader batch size
+    num_workers: *num_workers # data loader num of worker
+
+test_set:
+  type: *dataset_type
+  args:
+    data_dir: *data_dir
+    file_name: 'weibo_senti_test.jsonl'
+    cache_dir: *cache_dir
+    overwrite_cache: *overwrite_cache
+    word_embedding: *word_embedding
+    shuffle: true
+    batch_size: *batch_size   # data loader batch size
+    num_workers: *num_workers # data loader num of worker
+
+
+optimizer:
+  type: 'Adam'
+  args:
+    lr: 0.001
+
+lr_scheduler:
+  type: 'get_linear_schedule_with_warmup'
+  args:
+    num_warmup_steps: 0
+
+loss:
+  - "ce_loss"
+
+metrics:
+  - "categorical_accuracy"
+
+trainer:
+  epochs: 100
+  save_dir: 'saved/'
+  save_period: 1
+  verbosity: 2
+  monitor: "max val_categorical_accuracy"
+  early_stop: 20
+  tensorboard: true
+

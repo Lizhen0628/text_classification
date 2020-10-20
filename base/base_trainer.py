@@ -1,23 +1,35 @@
+# -*- coding: utf-8 -*-
+# @Time    : 2020/8/20 5:06 下午
+# @Author  : jeffery
+# @FileName: base_trainer.py
+# @website : http://www.jeffery.ink/
+# @github  : https://github.com/jeffery0628
+# @Description:
+
+
 import torch
 from abc import abstractmethod
 from numpy import inf
-from logger import TensorboardWriter
+from time import time
+# from logger import TensorboardWriter
+from utils import TensorboardWriter
 
 
 class BaseTrainer:
     """
     Base class for all trainers
     """
+
     def __init__(self, model, criterion, metric_ftns, optimizer, config):
         self.config = config
+        self.add_graph = True
         self.logger = config.get_logger('trainer', config['trainer']['verbosity'])
 
         # setup GPU device if available, move model into configured device
-        self.device, device_ids = self._prepare_device(config['n_gpu'])
-        self.model = model.to(self.device)
-        # 如果你想使用单卡，需要把下面的条件及其内容给注释掉，如果想多卡并行，则不需要注释下面的条件语句
-        # if len(device_ids) > 1:
-        #     self.model = torch.nn.DataParallel(model, device_ids=device_ids)
+        self.device, device_ids = self._prepare_device(config['num_gpu'],config['main_device_id'])
+        self.model = model.cuda()
+        if len(device_ids) > 1:
+            self.model = torch.nn.DataParallel(model, device_ids=device_ids)
 
         self.criterion = criterion
         self.metric_ftns = metric_ftns
@@ -40,10 +52,12 @@ class BaseTrainer:
             self.early_stop = cfg_trainer.get('early_stop', inf)
 
         self.start_epoch = 1
-
+        self.best_epoch = self.start_epoch
         self.checkpoint_dir = config.save_dir
+        self.logger_dir = config.log_dir
+        self.ner_type = config.config['experiment_name'].split('_')[-1]
 
-        # setup visualization writer instance                
+        # setup visualization writer instance
         self.writer = TensorboardWriter(config.log_dir, self.logger, cfg_trainer['tensorboard'])
 
         if config.resume is not None:
@@ -64,15 +78,18 @@ class BaseTrainer:
         """
         not_improved_count = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
+            t1 = time()
             result = self._train_epoch(epoch)
-
             # save logged informations into log dict
-            log = {'epoch': epoch}
+            log = {
+                'spending time': (time() - t1),
+                'epoch': epoch
+            }
             log.update(result)
 
             # print logged informations to the screen
             for key, value in log.items():
-                self.logger.info('    {:15s}: {}'.format(str(key), value))
+                self.logger.info('    {:30s}: {}'.format(str(key), value))
 
             # evaluate model performance according to configured metric, save best checkpoint as model_best
             best = False
@@ -89,6 +106,7 @@ class BaseTrainer:
 
                 if improved:
                     self.mnt_best = log[self.mnt_metric]
+                    self.best_epoch = epoch
                     not_improved_count = 0
                     best = True
                 else:
@@ -102,7 +120,7 @@ class BaseTrainer:
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
 
-    def _prepare_device(self, n_gpu_use):
+    def _prepare_device(self, n_gpu_use,main_device_id):
         """
         setup GPU device if available, move model into configured device
         """
@@ -115,8 +133,8 @@ class BaseTrainer:
             self.logger.warning("Warning: The number of GPU\'s configured to use is {}, but only {} are available "
                                 "on this machine.".format(n_gpu_use, n_gpu))
             n_gpu_use = n_gpu
-        device = torch.device('cuda:{}'.format(self.config.config['device_id']) if n_gpu_use > 0 else 'cpu')
-        list_ids = list(map(lambda x:int(x) ,self.config.config['device_id'].split(',')))
+        device = torch.device('cuda:{}'.format(self.config.config['main_device_id']) if n_gpu_use > 0 else 'cpu')
+        list_ids = list(map(lambda x: int(x), self.config.config['device_id'].split(',')))
         return device, list_ids
 
     def _save_checkpoint(self, epoch, save_best=False):
@@ -139,9 +157,12 @@ class BaseTrainer:
         filename = str(self.checkpoint_dir / 'checkpoint-epoch{}.pth'.format(epoch))
         torch.save(state, filename)
         self.logger.info("Saving checkpoint: {} ...".format(filename))
+
+        self.logger.info(
+            'best epoch:{},{} {}:{}'.format(self.best_epoch, self.mnt_mode, self.mnt_metric, self.mnt_best))
         if save_best:
-            best_path = str(self.checkpoint_dir / 'model_best.pth')
-            torch.save(state, best_path)
+            self.best_path = str(self.checkpoint_dir / 'model_best.pth')
+            torch.save(state, self.best_path)
             self.logger.info("Saving current best: model_best.pth ...")
 
     def _resume_checkpoint(self, resume_path):
@@ -153,11 +174,11 @@ class BaseTrainer:
         resume_path = str(resume_path)
         self.logger.info("Loading checkpoint: {} ...".format(resume_path))
         checkpoint = torch.load(resume_path)
-        self.start_epoch = checkpoint['epoch'] + 1
+        self.start_epoch = checkpoint['epoch']
         self.mnt_best = checkpoint['monitor_best']
 
         # load architecture params from checkpoint.
-        if checkpoint['config']['arch'] != self.config['arch']:
+        if checkpoint['config']['model_arch'] != self.config['model_arch']:
             self.logger.warning("Warning: Architecture configuration given in config file is different from that of "
                                 "checkpoint. This may yield an exception while state_dict is being loaded.")
         self.model.load_state_dict(checkpoint['state_dict'])
