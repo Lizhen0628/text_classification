@@ -32,8 +32,6 @@
 ├── configs
 │   ├── binary_classification
 │   │   ├── active_learning_word_embedding_text_cnn.yml
-│   │   ├── bert_rcnn_config.json
-│   │   ├── bert_rnn_config.json
 │   │   ├── transformers_cnn.yml
 │   │   ├── transformers_pure.yml
 │   │   ├── transformers_rcnn.yml
@@ -46,16 +44,6 @@
 │   │   ├── word_embedding_text_cnn_1d.yml
 │   │   └── word_embedding_text_cnn.yml
 │   ├── multi_classification
-│   │   ├── dpcnn_config.json
-│   │   ├── fast_text_config.json
-│   │   ├── gru_config.json
-│   │   ├── han_config.json
-│   │   ├── lstm_config.json
-│   │   ├── rcnn_config.json
-│   │   ├── rnn_attention_config.json
-│   │   ├── rnn_config.json
-│   │   ├── text_cnn_1d_config.json
-│   │   ├── text_cnn_config.json
 │   │   ├── transformers_cnn.yml
 │   │   ├── transformers_pure.yml
 │   │   ├── transformers_rcnn.yml
@@ -68,8 +56,6 @@
 │   │   ├── word_embedding_text_cnn_1d.yml
 │   │   ├── word_embedding_text_cnn.yml
 │   │   └── xlnet_config.json
-│   ├── multi_label_classification
-│   │   └── roberta_config.yml
 │   └── multilabel_classification
 │       ├── transformers_cnn.yml
 │       ├── transformers_pure.yml
