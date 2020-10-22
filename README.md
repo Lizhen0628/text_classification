@@ -24,11 +24,6 @@
 │   ├── base_model.py
 │   ├── base_trainer.py
 │   ├── __init__.py
-│   └── __pycache__
-│       ├── base_dataset.cpython-36.pyc
-│       ├── base_model.cpython-36.pyc
-│       ├── base_trainer.cpython-36.pyc
-│       └── __init__.cpython-36.pyc
 ├── configs
 │   ├── binary_classification
 │   │   ├── active_learning_word_embedding_text_cnn.yml
