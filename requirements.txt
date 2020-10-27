@@ -11,7 +11,7 @@ certifi==2020.6.20
 cffi @ file:///tmp/build/80754af9/cffi_1596809862272/work
 chardet==3.0.4
 click==7.1.2
-cryptography==3.1.1
+cryptography==3.2
 cycler==0.10.0
 dataclasses==0.7
 decorator==4.4.2
