@@ -11,7 +11,6 @@ import torch
 from abc import abstractmethod
 from numpy import inf
 from time import time
-# from logger import TensorboardWriter
 from utils import TensorboardWriter
 
 

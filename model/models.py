@@ -230,6 +230,7 @@ class RCNNModel(BaseModel):
         output, output_lengths = nn.utils.rnn.pad_packed_sequence(packed_output, batch_first=self.batch_first)
         # 把句子序列再调整成输入时的顺序
         output = output[desorted_indices]
+
         # output = [batch_size,seq_len,hidden_dim * num_directionns ]
         batch_size, max_seq_len, hidden_dim = output.shape
 
@@ -311,6 +312,7 @@ class RnnAttentionModel(BaseModel):
         output, output_lengths = nn.utils.rnn.pad_packed_sequence(packed_output, batch_first=self.batch_first)
         # 把句子序列再调整成输入时的顺序
         output = output[desorted_indices]
+        hidden = hidden[desorted_indices]
         # attention
         # M = [sent len, batch size, hidden dim * num_direction]
         # M = self.tanh1(output)
@@ -508,6 +510,7 @@ class TransformersRNN(nn.Module):
         # output = [ batch size,sent len, hidden_dim * bidirectional]
         output, output_lengths = nn.utils.rnn.pad_packed_sequence(packed_output, batch_first=self.batch_first)
         output = output[desorted_indices]
+        hidden = hidden[desorted_indices]
 
         batch_size, max_seq_len, hidden_dim = output.shape
         hidden = torch.mean(torch.reshape(hidden, [batch_size, -1, hidden_dim]), dim=1)
@@ -584,6 +587,7 @@ class TransformersRCNN(BaseModel):
 
         output, output_lengths = nn.utils.rnn.pad_packed_sequence(packed_output, batch_first=self.batch_first)
         output = output[desorted_indices]
+
         batch_size, max_seq_len, hidden_dim = output.shape
         out = torch.transpose(output.relu(), 1, 2)
 

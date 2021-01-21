@@ -26,8 +26,8 @@ def main(config):
     from data_process import makeDataLoader
     # 针对不同的数据，训练过程的设置略有不同。
     # from trainer.weibo_trainer import Trainer # weibo
-    # from trainer.cnews_trainer import Trainer # cnews
-    from trainer.medical_question_trainer import Trainer
+    from trainer.cnews_trainer import Trainer # cnews
+    # from trainer.medical_question_trainer import Trainer
 
     logger = config.get_logger('train')
     train_dataloader, valid_dataloader, test_dataloader = makeDataLoader(config)
@@ -61,15 +61,15 @@ def run(config_fname):
 
 
 if __name__ == '__main__':
-    # run('configs/multilabel_classification/word_embedding_text_cnn.yml')
-    # run('configs/multilabel_classification/word_embedding_text_cnn_1d.yml')
-    # run('configs/multilabel_classification/word_embedding_fast_text.yml')
-    # run('configs/multilabel_classification/word_embedding_rnn.yml')
-    # run('configs/multilabel_classification/word_embedding_rcnn.yml')
-    # run('configs/multilabel_classification/word_embedding_rnn_attention.yml')
-    # run('configs/multilabel_classification/word_embedding_dpcnn.yml')
+    run('configs/multi_classification/word_embedding_text_cnn.yml')
+    # run('configs/multi_classification/word_embedding_text_cnn_1d.yml')
+    # run('configs/multi_classification/word_embedding_fast_text.yml')
+    # run('configs/multi_classification/word_embedding_rnn.yml')
+    # run('configs/multi_classification/word_embedding_rcnn.yml')
+    # run('configs/multi_classification/word_embedding_rnn_attention.yml')
+    # run('configs/multi_classification/word_embedding_dpcnn.yml')
 
-    run('configs/multilabel_classification/transformers_pure.yml')
-    run('configs/multilabel_classification/transformers_cnn.yml')
-    run('configs/multilabel_classification/transformers_rnn.yml')
-    run('configs/multilabel_classification/transformers_rcnn.yml')
+    # run('configs/multi_classification/transformers_pure.yml')
+    # run('configs/multi_classification/transformers_cnn.yml')
+    # run('configs/multi_classification/transformers_rnn.yml')
+    # run('configs/multi_classification/transformers_rcnn.yml')

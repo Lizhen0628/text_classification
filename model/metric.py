@@ -92,6 +92,6 @@ def categorical_accuracy(preds, y):
     """
     Returns accuracy per batch, i.e. if you get 8/10 right, this returns 0.8, NOT 8
     """
-    max_preds = preds.argmax(dim=1, keepdim=True)  # get the index of the max probability
-    correct = max_preds.squeeze(1).eq(y)
+    # max_preds = preds.argmax(dim=-1)  # get the index of the max probability
+    correct = preds.eq(y)
     return (correct.sum().cpu() / torch.FloatTensor([y.shape[0]])).item()
