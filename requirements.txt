@@ -5,7 +5,7 @@ astunparse==1.6.3
 attrs==19.3.0
 backcall==0.2.0
 bcrypt==3.2.0
-bleach==3.1.5
+bleach==3.3.0
 cachetools==4.1.1
 certifi==2020.6.20
 cffi @ file:///tmp/build/80754af9/cffi_1596809862272/work
