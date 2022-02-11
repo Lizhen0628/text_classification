@@ -73,7 +73,7 @@ pickleshare==0.7.5
 Pillow @ file:///tmp/build/80754af9/pillow_1594307298074/work
 prometheus-client==0.8.0
 prompt-toolkit==3.0.5
-protobuf==3.13.0
+protobuf==3.15.0
 ptyprocess==0.6.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
