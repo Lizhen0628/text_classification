@@ -49,7 +49,7 @@ lab==6.0
 Markdown==3.2.2
 MarkupSafe==1.1.1
 matplotlib==3.3.1
-mistune==0.8.4
+mistune==2.0.3
 mkl-fft==1.1.0
 mkl-random==1.1.1
 mkl-service==2.3.0
