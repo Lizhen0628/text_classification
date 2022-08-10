@@ -55,7 +55,7 @@ mkl-random==1.1.1
 mkl-service==2.3.0
 nb-conda==2.2.1
 nb-conda-kernels==2.2.3
-nbconvert==5.6.1
+nbconvert==6.3.0
 nbformat==5.0.7
 nltk==3.5
 notebook @ file:///tmp/build/80754af9/notebook_1596838602091/work
