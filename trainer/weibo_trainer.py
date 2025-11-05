@@ -43,25 +43,33 @@ class Trainer(BaseTrainer):
     def _train_epoch(self, epoch):
         """
         Training logic for an epoch
-
-        :param epoch: Integer, current training epoch.
-        :return: A log that contains average loss and metric in this epoch.
         """
         self.model.train()
         self.train_metrics.reset()
         for batch_idx, data in enumerate(self.data_loader):
             self.optimizer.zero_grad()
-            input_ids, attention_masks, text_lengths, labels = data
-
-            if 'cuda' == self.device.type:
-                input_ids = input_ids.cuda()
-                if attention_masks is not None:
-                    attention_masks = attention_masks.cuda()
-                text_lengths = text_lengths.cuda()
-                labels = labels.cuda()
+            input_ids, attention_masks, text_lengths, labels,_ = data
+            input_ids = input_ids.to(self.device)
+            if attention_masks is not None:
+                attention_masks = attention_masks.to(self.device)
+            text_lengths = text_lengths.to(self.device)
+            labels = labels.to(self.device)
             preds, embedding = self.model(input_ids, attention_masks, text_lengths)
             preds = preds.squeeze()
             loss = self.criterion[0](preds, labels)
+
+            if batch_idx % 50 == 0: # 每 50 个 batch 打印一次
+                # 使用我们之前修复的 argmax 逻辑来获取预测类别
+                pred_classes = torch.argmax(preds, dim=1) 
+                correct_count = (pred_classes == labels).sum().item()
+                
+                print(f"\n--- 调试信息 (Batch {batch_idx}) ---")
+                print(f"模型原始输出 (preds) (前5个): \n{preds[:5]}")
+                print(f"模型预测类别 (pred_classes) (前5个): {pred_classes[:5]}")
+                print(f"真实标签 (labels) (前5个): {labels[:5]}")
+                print(f"本批次正确个数: {correct_count} / {len(labels)}")
+                print(f"本批次损失 (Loss): {loss.item()}")
+                print("-----------------\n")
             loss.backward()
             self.optimizer.step()
             self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
@@ -79,7 +87,7 @@ class Trainer(BaseTrainer):
         log = self.train_metrics.result()
         if self.do_validation:
             val_log = self._valid_epoch(epoch)
-            log.update(**{'val_' + k: v for k, v in val_log.items()})
+            log.update(**{'val_'+k: v for k, v in val_log.items()})
 
         if self.do_inference:
             test_log = self._inference_epoch(epoch)
@@ -100,21 +108,37 @@ class Trainer(BaseTrainer):
         self.valid_metrics.reset()
         with torch.no_grad():
             for batch_idx, data in enumerate(self.valid_data_loader):
-                input_ids, attention_masks, text_lengths, labels = data
+                input_ids, attention_masks, text_lengths, labels, _ = data
 
-                if 'cuda' == self.device.type:
-                    input_ids = input_ids.cuda()
-                    if attention_masks is not None:
-                        attention_masks = attention_masks.cuda()
-                    text_lengths = text_lengths.cuda()
-                    labels = labels.cuda()
+                # --- 使用 .to(self.device) 简化了设备转移 ---
+                input_ids = input_ids.to(self.device)
+                if attention_masks is not None:
+                    attention_masks = attention_masks.to(self.device)
+                text_lengths = text_lengths.to(self.device)
+                labels = labels.to(self.device)
+                
                 preds, embedding = self.model(input_ids, attention_masks, text_lengths)
                 preds = preds.squeeze()
-                if self.add_graph:
+
+                # --- 修复：修复了 add_graph 不能处理 None 的问题 ---
+                if self.add_graph: # 检查 self.add_graph (在你的代码中是 batch_idx == 0 ...)
+                    # 1. 准备模型 (处理 DataParallel)
                     input_model = self.model.module if (len(self.config.config['device_id']) > 1) else self.model
-                    self.writer.writer.add_graph(input_model,
-                                                 [input_ids, attention_masks, text_lengths])
+                    
+                    # 2. 准备示例输入，处理 attention_masks 为 None 的情况
+                    graph_input_attn_mask = attention_masks
+                    if attention_masks is None:
+                        # 如果 attention_mask 是 None, 创建一个假的、全 1 的张量
+                        # 它的形状、类型和设备都必须和 input_ids 一致
+                        graph_input_attn_mask = torch.ones_like(input_ids)
+                    
+                    graph_inputs = [input_ids, graph_input_attn_mask, text_lengths]
+                    
+                    # 3. 调用 add_graph
+                    self.writer.writer.add_graph(input_model, graph_inputs)
                     self.add_graph = False
+                # --- 修复结束 ---
+
                 loss = self.criterion[0](preds, labels)
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
@@ -138,28 +162,31 @@ class Trainer(BaseTrainer):
         self.test_metrics.reset()
         with torch.no_grad():
             for batch_idx, data in enumerate(self.test_data_loader):
-                input_ids, attention_masks, text_lengths, labels = data
+                # --- 修复 1：解包 5 个元素 ---
+                input_ids, attention_masks, text_lengths, labels, _ = data
 
-                if 'cuda' == self.device.type:
-                    input_ids = input_ids.cuda()
-                    if attention_masks is not None:
-                        attention_masks = attention_masks.cuda()
-                    text_lengths = text_lengths.cuda()
-                    labels = labels.cuda()
+                # --- 修复 4：统一使用 .to(self.device) ---
+                input_ids = input_ids.to(self.device)
+                if attention_masks is not None:
+                    attention_masks = attention_masks.to(self.device)
+                text_lengths = text_lengths.to(self.device)
+                labels = labels.to(self.device)
+                
                 preds, embedding = self.model(input_ids, attention_masks, text_lengths)
                 preds = preds.squeeze()
                 loss = self.criterion[0](preds, labels)
 
-                self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'test')
+                # --- 修复 3：使用 test_data_loader 的长度 ---
+                self.writer.set_step((epoch - 1) * len(self.test_data_loader) + batch_idx, 'test')
                 self.test_metrics.update('loss', loss.item())
                 for met in self.metric_ftns:
                     self.test_metrics.update(met.__name__, met(preds, labels))
 
-                # add histogram of model parameters to the tensorboard
-            for name, p in self.model.named_parameters():
-                self.writer.add_histogram(name, p, bins='auto')
-            return self.test_metrics.result()
-
+        # --- 修复 2：修正缩进，将下面两块代码移出 'with' 块 ---
+        # add histogram of model parameters to the tensorboard
+        for name, p in self.model.named_parameters():
+            self.writer.add_histogram(name, p, bins='auto')
+        return self.test_metrics.result()
     def _progress(self, batch_idx):
         base = '[{}/{} ({:.0f}%)]'
         if hasattr(self.data_loader, 'n_samples'):

@@ -6,4 +6,6 @@
 # @github  : https://github.com/jeffery0628
 # @Description:
 
-from trainer.trainer import *
+from .weibo_trainer import *
+from .medical_question_trainer import *
+from .cnews_trainer import *

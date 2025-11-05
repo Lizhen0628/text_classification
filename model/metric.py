@@ -93,5 +93,12 @@ def categorical_accuracy(preds, y):
     Returns accuracy per batch, i.e. if you get 8/10 right, this returns 0.8, NOT 8
     """
     # max_preds = preds.argmax(dim=-1)  # get the index of the max probability
-    correct = preds.eq(y)
+    # --- 这是新的、正确的代码 ---
+
+# 1. 使用 argmax 沿着 1 维度找出分数最高的索引（即模型预测的类别）
+#    pred_classes 的形状将是 [100]
+    pred_classes = torch.argmax(preds, dim=1) 
+
+    # 2. 现在两个张量的形状都是 [100]，可以安全地比较了
+    correct = pred_classes.eq(y)
     return (correct.sum().cpu() / torch.FloatTensor([y.shape[0]])).item()

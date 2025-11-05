@@ -79,7 +79,7 @@ class BaseDataSet(Dataset):
 
     def load_features_from_cache(self):
         print('loading features from cache file : {}...'.format(self.feature_cache_file))
-        return torch.load(self.feature_cache_file)
+        return torch.load(self.feature_cache_file,weights_only=False)
 
     def __len__(self):
         return len(self.features)

@@ -26,15 +26,13 @@ class InputExample:
 
 @dataclass
 class InputFeatures:
-    """
-    A single set of features of data.
-    Property names are the same names as the corresponding inputs to a model.
-    """
+    
     guid: Optional[str]
     input_ids: List[int]
     attention_mask: Optional[List[int]]
     label: int
-
+    # text字段表示文本信息
+    text: Optional[str] = None  
     def __post_init__(self):
         self.sent_len = len(self.input_ids)
 
@@ -53,10 +51,13 @@ class WeiboEmbeddingDataset(BaseDataSet):
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.word_embedding = pickle.load(Path(word_embedding).open('rb'))
-        self.feature_cache_file = Path(cache_dir) / (file_name.split('.')[0] + '.cache')
+        cache_dir_path = Path(cache_dir)
+        cache_dir_path.mkdir(parents=True, exist_ok=True)
+        self.feature_cache_file = cache_dir_path / (file_name.split('.')[0] + '.cache')
         super(WeiboEmbeddingDataset, self).__init__(transformer_model=None, overwrite_cache=overwrite_cache,
                                                     force_download=None, cache_dir=None)
 
+    # read jsonl file through lines
     def read_examples_from_file(self):
         input_file = self.data_dir / self.file_name
         with input_file.open('r') as f:
@@ -66,6 +67,9 @@ class WeiboEmbeddingDataset(BaseDataSet):
                     continue
                 yield InputExample(guid=json_line['id'], text=json_line['text'], label=json_line['labels'])
 
+    # use 'jieba' tokenizer to split words
+    # find input_id for each word through embedding's dictionary(word->input_id)
+    # features containing ([input_id1,input_id2,...],[label],[text])
     def convert_examples_to_features(self):
         features = []
         for example in self.read_examples_from_file():
@@ -74,25 +78,31 @@ class WeiboEmbeddingDataset(BaseDataSet):
                 self.word_embedding.stoi[token] if token in self.word_embedding.stoi else self.word_embedding.stoi[
                     'UNK'] for token in tokens]
             label = example.label[0]
-            features.append(InputFeatures(guid=example.guid, input_ids=input_ids, attention_mask=None, label=label))
+            features.append(InputFeatures(guid=example.guid, input_ids=input_ids, attention_mask=None, label=label,text=example.text))
         return features
 
+
+    # we got standarlized data which can be put into dataloader
     def collate_fn(self, datas):
         max_len = max([data.sent_len for data in datas])
         input_ids = []
         text_lengths = []
         labels = []
+        texts = [] 
 
+        # find max_length's sentences and for every other sentence, we put padding to it
         for data in datas:
             input_ids.append(data.input_ids + [self.word_embedding.stoi['PAD']] * (max_len - data.sent_len))
             text_lengths.append(data.sent_len)
             labels.append(data.label)
+            texts.append(data.text) 
 
         input_ids = torch.LongTensor(np.asarray(input_ids))
         text_lengths = torch.LongTensor(np.asarray(text_lengths))
         labels = torch.LongTensor(np.asarray(labels))
-        return input_ids,None, text_lengths, labels  # 添加None是为了与使用transformer的模型对齐。
-
+        
+        
+        return input_ids, None, text_lengths, labels, texts
 
 class WeiboTransformersDataset(BaseDataSet):
     """

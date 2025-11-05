@@ -7,15 +7,15 @@
 # @Description:
 # template related
 
-from utils.project_utils import *
-from utils.parse_config import ConfigParser
+from .project_utils import *
+from .parse_config import ConfigParser
 
 # project related
-from utils.trainer_utils import *
-from utils.visualization import TensorboardWriter
+from .trainer_utils import *
+from .visualization import TensorboardWriter
 
-from utils.data_utils import WordEmbedding,add_pad_unk
+from .data_utils import WordEmbedding,add_pad_unk
 
 # query strategies
-from utils.query_strategies import *
+from .query_strategies import *
 

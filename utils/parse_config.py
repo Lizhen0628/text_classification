@@ -17,21 +17,6 @@ import os
 
 class ConfigParser:
     def __init__(self, config, resume=None, run_id=None):
-
-        """
-        method description:
-            class to parse configuration json file. Handles hyperparameters for training, initializations of modules, checkpoint saving
-
-        Args:
-            config (dict): project parameters
-            resume (str): path to the checkpoint being loaded.
-            run_id (str): Unique Identifier for training processes. Used to save checkpoints and training log. Timestamp is being used as default
-        Returns:
-            return_v (rtype): rtype description
-
-        :Author:  jeffery
-        :Create:  2020/8/2 10:00 下午
-        """
         # load config file
         self._config = config
         self.resume = resume
@@ -64,50 +49,36 @@ class ConfigParser:
         }
 
     @classmethod
-    def from_args(cls, cur_config):
-        """
-        method description:
-            Initialize this class from some cli arguments. Used in train, test.
+    def from_args(cls, args_dict: dict):
+        visual_device = args_dict.get('device', None)
+        if visual_device is not None:
+            os.environ["CUDA_VISIBLE_DEVICES"] = visual_device
 
-        Args:
-            cur_config (dict): project config parameters read
+        resume_path = args_dict.get('resume', None)
+        config_path = args_dict.get('config', None)
 
-        Returns:
-            cls (ConfigParser): Handles hyperparameters for training, initializations of modules, checkpoint saving
 
-        :Author:  jeffery
-        :Create:  2020/8/2 8:56 下午
-        """
-        if cur_config['visual_device'] is not None:
-            os.environ["CUDA_VISIBLE_DEVICES"] = cur_config['visual_device']
-
-        if cur_config['resume_path'] is not None:
-            # load saved model config
-            resume = Path(cur_config['resume_path'])
+        # 注意，这里如果resume_path不为空，代表需要继续按照上一个checkpoint进行训练；否则读取配置的config文件
+        # 因此这里读取的config文件应该是处于saved文件夹下的config，而不是初始的config文件
+        if resume_path is not None:
+            resume = Path(resume_path)
             cfg_fname = resume.parent / 'config.yml'
         else:
             resume = None
-            cfg_fname = Path(cur_config['config_file_name'])
+            if config_path is None:
+                raise ValueError("No config file provided (--config)")
+            cfg_fname = Path(config_path)
 
-        config = read_yaml(cfg_fname)
 
-        config['device_id'] = cur_config['device_id']
-
-        if resume:
-            # update new config for fine-tuning
-            config.update(read_yaml(cur_config['config_file_name']))
-
-        return cls(config, resume)
+        # 用yaml方式读取config文件
+        config = read_yaml(cfg_fname) 
+        # 用读入的resume_path和device_id更新config对应的键值对内容
+        config['resume_path'] = resume_path
+        config['device_id'] = visual_device
+        # cls返回的是configParser类本身
+        return cls(config=config, resume=resume)
 
     def init_obj(self, name, module, *args, **kwargs):
-        """
-        Finds a function handle with the name given as 'type' in config, and returns the
-        instance initialized with corresponding arguments given.
-
-        `object = config.init_obj('name', module, a, b=1)`
-        is equivalent to
-        `object = module.name(a, b=1)`
-        """
         module_name = self[name]['type']
         module_args = dict(self[name]['args'])
         assert all([k not in module_args for k in kwargs]), 'Overwriting kwargs given in config file is not allowed'
@@ -115,14 +86,6 @@ class ConfigParser:
         return getattr(module, module_name)(*args, **module_args)
 
     def init_ftn(self, name, module, *args, **kwargs):
-        """
-        Finds a function handle with the name given as 'type' in config, and returns the
-        function with given arguments fixed with functools.partial.
-
-        `function = config.init_ftn('name', module, a, b=1)`
-        is equivalent to
-        `function = lambda *args, **kwargs: module.name(a, *args, b=1, **kwargs)`.
-        """
         module_name = self[name]['type']
         module_args = dict(self[name]['args'])
         assert all([k not in module_args for k in kwargs]), 'Overwriting kwargs given in config file is not allowed'

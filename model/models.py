@@ -145,7 +145,7 @@ class RnnModel(BaseModel):
         # embedded = [batch size, sent len, emb dim]
 
         # pack sequence
-        packed_embedded = nn.utils.rnn.pack_padded_sequence(embedded, sorted_seq_lengths, batch_first=self.batch_first)
+        packed_embedded = nn.utils.rnn.pack_padded_sequence(embedded, sorted_seq_lengths.to('cpu'), batch_first=self.batch_first)
         self.rnn.flatten_parameters()
         if self.rnn_type in ['rnn', 'gru']:
             packed_output, hidden = self.rnn(packed_embedded)
@@ -300,7 +300,7 @@ class RnnAttentionModel(BaseModel):
         # embedded = [batch size,sent len,  emb dim]
 
         # pack sequence
-        packed_embedded = nn.utils.rnn.pack_padded_sequence(embedded, sorted_seq_lengths, batch_first=self.batch_first)
+        packed_embedded = nn.utils.rnn.pack_padded_sequence(embedded, sorted_seq_lengths.to('cpu'), batch_first=self.batch_first)
 
         if self.rnn_type in ['rnn', 'gru']:
             packed_output, hidden = self.rnn(packed_embedded)
